@@ -4,8 +4,10 @@ import UIKit
 class ArticleDetailsViewController: BaseViewController {
     @IBOutlet weak var articleImage: UIImageView!
     @IBOutlet weak var articleTitle: UILabel!
-    @IBOutlet weak var abstract: UILabel!
-   
+    @IBOutlet weak var abstract: UITextView!
+    @IBOutlet weak var author: UILabel!
+    @IBOutlet weak var date: UILabel!
+    
     
     var loader: Loader?
     var article: ArticleModel?
@@ -15,12 +17,18 @@ class ArticleDetailsViewController: BaseViewController {
         setupView()
     }
     
-    func setupView() {
+    private func setupView() {
         loader = Loader(view: articleImage, style: .whiteLarge)
         let urlString = article?.media?.largeImage ?? ""
         setImage(url: URL(string: urlString), view: articleImage)
         articleTitle.text = article?.title
-        abstract.text = article?.abstract
+        var articleBody = article?.abstract ?? ""
+        if let url = article?.url {
+            articleBody += "\n\nread more at \(url)"
+        }
+        abstract.text = articleBody
+        author.text = (article?.byline ?? "") + " | " + (article?.source ?? "")
+        date.text = article?.publishedDate
     }
     
     override func viewDidLayoutSubviews() {

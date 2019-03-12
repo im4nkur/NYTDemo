@@ -1,11 +1,3 @@
-//
-//  NYTDemoUITests.swift
-//  NYTDemoUITests
-//
-//  Created by Ankur Arya on 12/03/19.
-//  Copyright © 2019 Ankur Arya. All rights reserved.
-//
-
 import XCTest
 
 class NYTDemoUITests: XCTestCase {
@@ -27,8 +19,16 @@ class NYTDemoUITests: XCTestCase {
     }
 
     func testExample() {
-        // Use recording to get started writing UI tests.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        // Test cases are recorded using DummyArticleRepo() in ArticleListViewController
+        let app = XCUIApplication()
+        app.otherElements.containing(.navigationBar, identifier:"New York Times").children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .table).element.swipeDown()
+       let article1 = app.tables/*@START_MENU_TOKEN@*/.cells.containing(.staticText, identifier:"Test Article 1")/*[[".cells.containing(.staticText, identifier:\"20 Feb 2019\")",".cells.containing(.staticText, identifier:\"Test Article 1\")"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.staticTexts["By Ankur Arya"].exists
+        
+        XCTAssertEqual(article1, true)
+        
+        let articleNA = app.tables/*@START_MENU_TOKEN@*/.cells.containing(.staticText, identifier:"Test Article 1")/*[[".cells.containing(.staticText, identifier:\"20 Feb 2019\")",".cells.containing(.staticText, identifier:\"Test Article 1\")"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.staticTexts["By Unknown"].exists
+        
+        XCTAssertEqual(articleNA, false)
     }
 
 }

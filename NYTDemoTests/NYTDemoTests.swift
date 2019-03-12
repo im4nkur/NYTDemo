@@ -1,34 +1,65 @@
-//
-//  NYTDemoTests.swift
-//  NYTDemoTests
-//
-//  Created by Ankur Arya on 12/03/19.
-//  Copyright © 2019 Ankur Arya. All rights reserved.
-//
-
 import XCTest
+import RxSwift
+
 @testable import NYTDemo
 
 class NYTDemoTests: XCTestCase {
-
+    var articlesListPresenter: ArticleListPresenter?
+    let disposeBag = CompositeDisposable()
+    var articles = [ArticleModel]()
+    
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        fetchArticles()
     }
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testConvertArticleDomainToPresentationModel() {
+        let presentation = ModelsConverter().convertArticleDomainToPresentationModel(article: domainModel)
+        
+        XCTAssertEqual(domainModel.abstract, presentation.abstract)
     }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func testConvertArticleNetworkToDomainModel() {
+        let domain = ModelsConverter().convertArticleNetworkToDomainModel(networkModel: networkModel)
+        
+        XCTAssertEqual(networkModel.abstract, domain.abstract)
+    }
+    
+    private func fetchArticles() {
+        let articleRepo: ArticleRepo = DummyArticleRepo()
+        articlesListPresenter = ArticleListImpl(repo: articleRepo)
+        let myBusyScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
+        if let disposable = articlesListPresenter?.fetchArticles(params:nil)
+            .subscribeOn(myBusyScheduler)
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { (articles) in
+                self.articles = articles
+            }, onError: { (error) in
+            }) {
+            let _ = disposeBag.insert(disposable)
         }
     }
 
+    var domainModel: Article {
+        let mediaData1 = MediaData(url: "http://abc.com", format: "Standard Thumbnail", height: 200, width: 200)
+        let mediaData2 = MediaData(url: "http://abcd.com", format: "Large", height: 400, width: 400)
+        
+        let media = Media(type: "Photo", subtype: "Image", caption: "This is a photo", copyright: "Ankur - All Rights Reserved", mediaData: [mediaData1, mediaData2])
+        
+        return Article(url: "http://abc.com", section: "Health", byline: "By Ankur Arya", type: "Article", title: "Test Article 1", abstract: "This is a test article 1", publishedDate: "20 Feb 2019", source: "Internet", id: 123, views: 1, media: [media])
+        
+    }
+    var networkModel: NetworkArticle {
+        let mediaData1 = NetworkMediaData(url: "http://abc.com", format: "Standard Thumbnail", height: 200, width: 200)
+        let mediaData2 = NetworkMediaData(url: "http://abcd.com", format: "Large", height: 400, width: 400)
+        
+        let media = NetworkMedia(type: "Photo", subtype: "Image", caption: "This is a photo", copyright: "Ankur - All Rights Reserved", mediaData: [mediaData1, mediaData2])
+        
+        return NetworkArticle(url: "http://abc.com", section: "Health", byline: "By Ankur Arya", type: "Article", title: "Test Article", abstract: "This is a test article", publishedDate: "22 Feb 2019", source: "Internet", id: 127, views: 5, media: [media])
+    }
+  
 }
