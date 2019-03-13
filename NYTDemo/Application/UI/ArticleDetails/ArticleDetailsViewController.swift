@@ -49,15 +49,17 @@ class ArticleDetailsViewController: BaseViewController {
             loader?.stop()
             return
         }
-        FetchImageFromURL(url: imageUrl.absoluteString).downloadImage(onSuccess: { (image) in
-            DispatchQueue.main.async {
-                view?.image = image
-                self.loader?.stop()
-            }
-        }) { (error) in
-            DispatchQueue.main.async {
-                view?.image = UIImage(named: "PlaceHolderImage")
-                self.loader?.stop()
+        DispatchQueue.global(qos: .background).async {
+            FetchImageFromURL(url: imageUrl.absoluteString).downloadImage(onSuccess: { (image) in
+                DispatchQueue.main.async {
+                    view?.image = image
+                    self.loader?.stop()
+                }
+            }) { (error) in
+                DispatchQueue.main.async {
+                    view?.image = UIImage(named: "PlaceHolderImage")
+                    self.loader?.stop()
+                }
             }
         }
     }
