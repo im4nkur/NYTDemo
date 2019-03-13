@@ -18,17 +18,18 @@ class NYTDemoUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testExample() {
-        // Test cases are recorded using DummyArticleRepo() in ArticleListViewController
+    func testUIElements() {
+        
         let app = XCUIApplication()
-        app.otherElements.containing(.navigationBar, identifier:"New York Times").children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .table).element.swipeDown()
-       let article1 = app.tables/*@START_MENU_TOKEN@*/.cells.containing(.staticText, identifier:"Test Article 1")/*[[".cells.containing(.staticText, identifier:\"20 Feb 2019\")",".cells.containing(.staticText, identifier:\"Test Article 1\")"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.staticTexts["By Ankur Arya"].exists
+        let article = app.tables/*@START_MENU_TOKEN@*/.cells.staticTexts["H.I.V. Is Reported Cured in a Second Patient, a Milestone in the Global AIDS Epidemic"]/*[[".cells.staticTexts[\"H.I.V. Is Reported Cured in a Second Patient, a Milestone in the Global AIDS Epidemic\"]",".staticTexts[\"H.I.V. Is Reported Cured in a Second Patient, a Milestone in the Global AIDS Epidemic\"]"],[[[-1,1],[-1,0]]],[1]]@END_MENU_TOKEN@*/.waitForExistence(timeout: 10)
+        let url = app.textViews.containing(.link, identifier:"https://www.nytimes.com/2019/03/04/health/aids-cure-london-patient.html").element.waitForExistence(timeout: 10)
+        let button = app.navigationBars["New York Times"].buttons["New York Times"].waitForExistence(timeout: 10)
         
-        XCTAssertEqual(article1, true)
         
-        let articleNA = app.tables/*@START_MENU_TOKEN@*/.cells.containing(.staticText, identifier:"Test Article 1")/*[[".cells.containing(.staticText, identifier:\"20 Feb 2019\")",".cells.containing(.staticText, identifier:\"Test Article 1\")"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.staticTexts["By Unknown"].exists
+        XCTAssertNotNil(article)
+        XCTAssertNotNil(url)
+        XCTAssertNotNil(button)
         
-        XCTAssertEqual(articleNA, false)
     }
 
 }

@@ -6,11 +6,9 @@ import RxSwift
 class NYTDemoTests: XCTestCase {
     var articlesListPresenter: ArticleListPresenter?
     let disposeBag = CompositeDisposable()
-    var articles = [ArticleModel]()
     
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        fetchArticles()
     }
 
     override func tearDown() {
@@ -29,7 +27,33 @@ class NYTDemoTests: XCTestCase {
         XCTAssertEqual(networkModel.abstract, domain.abstract)
     }
     
-    private func fetchArticles() {
+    func testFetchArticlesIntractorWithNetworkRepo() {
+        let ex = expectation(description: "articles")
+        let articleRepo: ArticleRepo = NetworkArticlesRepo()
+        articlesListPresenter = ArticleListImpl(repo: articleRepo)
+        let myBusyScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
+        if let disposable = articlesListPresenter?.fetchArticles(params:nil)
+            .subscribeOn(myBusyScheduler)
+            .observeOn(MainScheduler.instance)
+            .subscribe(onNext: { (articles) in
+                ex.fulfill()
+                XCTAssertNotNil(articles)
+            }, onError: { (error) in
+                ex.fulfill()
+                XCTFail("Error: \(error.localizedDescription)")
+            }) {
+            let _ = disposeBag.insert(disposable)
+        }
+        
+        waitForExpectations(timeout: 10) { (error) in
+            if let error = error {
+                XCTFail("Error: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func testFetchArticlesIntractorWithDummyRepo() {
+        let ex = expectation(description: "dummyArticles")
         let articleRepo: ArticleRepo = DummyArticleRepo()
         articlesListPresenter = ArticleListImpl(repo: articleRepo)
         let myBusyScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
@@ -37,10 +61,19 @@ class NYTDemoTests: XCTestCase {
             .subscribeOn(myBusyScheduler)
             .observeOn(MainScheduler.instance)
             .subscribe(onNext: { (articles) in
-                self.articles = articles
+                ex.fulfill()
+                XCTAssertNotNil(articles)
             }, onError: { (error) in
+                ex.fulfill()
+                XCTFail("Error: \(error.localizedDescription)")
             }) {
             let _ = disposeBag.insert(disposable)
+        }
+        
+        waitForExpectations(timeout: 10) { (error) in
+            if let error = error {
+                XCTFail("Error: \(error.localizedDescription)")
+            }
         }
     }
 
