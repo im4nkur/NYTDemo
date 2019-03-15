@@ -23,8 +23,8 @@ struct NetworkArticle: Codable {
 struct NetworkMedia: Codable {
     var type: String
     var subtype: String
-    var caption: String
-    var copyright: String
+    var caption: String?
+    var copyright: String?
     var mediaData: [NetworkMediaData]
     private enum CodingKeys: String, CodingKey {
         case type, subtype, caption, copyright

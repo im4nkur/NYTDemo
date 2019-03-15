@@ -39,7 +39,7 @@ class ModelsConverter {
     /// - Returns: domain model.
     private func convertMediaNetworkToDomainModel(media: NetworkMedia) -> Media {
         let mediaData = media.mediaData.map({convertMediaDataNetworkToDomainModel(mediaData: $0)})
-        return Media(type: media.type, subtype: media.subtype, caption: media.caption, copyright: media.caption, mediaData: mediaData)
+        return Media(type: media.type, subtype: media.subtype, caption: media.caption ?? "", copyright: media.copyright ?? "", mediaData: mediaData)
     }
     
     /// Convert network MediaData model to domain MediaData model.
